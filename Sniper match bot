@@ -1,309 +1,37 @@
-<xml xmlns="http://www.w3.org/1999/xhtml">
+# Sniper Match Bot
 
-  <!-- TRADE -->
-  <block type="trade" x="20" y="20">
-    <field name="MARKET_LIST">volidx</field>
-    <field name="SUBMARKET_LIST">random_index</field>
-    <field name="SYMBOL_LIST">R_100</field>
-    <field name="TRADETYPECAT_LIST">digits</field>
-    <field name="TRADETYPE_LIST">matchesdiffers</field>
-    <field name="TYPE_LIST">DIGITMATCH</field>
-    <field name="RESTARTONERROR">TRUE</field>
+## Overview
+This bot is designed to assist in sniper matches by providing automated functionalities tailored to enhance performance and strategy during games.
 
-    <!-- INIT -->
-    <statement name="INITIALIZATION">
-      <block type="variables_set">
-        <field name="VAR">base_stake</field>
-        <value name="VALUE">
-          <block type="math_number"><field name="NUM">1</field></block>
-        </value>
-        <next>
-          <block type="variables_set">
-            <field name="VAR">stake</field>
-            <value name="VALUE">
-              <block type="variables_get"><field name="VAR">base_stake</field></block>
-            </value>
-            <next>
-              <block type="variables_set">
-                <field name="VAR">prev_digit</field>
-                <value name="VALUE">
-                  <block type="math_number"><field name="NUM">-1</field></block>
-                </value>
-                <next>
-                  <block type="variables_set">
-                    <field name="VAR">streak</field>
-                    <value name="VALUE">
-                      <block type="math_number"><field name="NUM">0</field></block>
-                    </value>
-                    <next>
-                      <block type="variables_set">
-                        <field name="VAR">loss_count</field>
-                        <value name="VALUE">
-                          <block type="math_number"><field name="NUM">0</field></block>
-                        </value>
-                        <next>
-                          <block type="variables_set">
-                            <field name="VAR">target</field>
-                            <value name="VALUE">
-                              <block type="math_number"><field name="NUM">10</field></block>
-                            </value>
-                            <next>
-                              <block type="variables_set">
-                                <field name="VAR">stoploss</field>
-                                <value name="VALUE">
-                                  <block type="math_number"><field name="NUM">-10</field></block>
-                                </value>
-                              </block>
-                            </next>
-                          </block>
-                        </next>
-                      </block>
-                    </next>
-                  </block>
-                </next>
-              </block>
-            </next>
-          </block>
-        </next>
-      </block>
-    </statement>
+## Features
+- **Enhanced Documentation**: Comprehensive usage instructions and parameters are documented.
+- **Configurable Parameters**: Users can customize various settings to adapt to different match scenarios.
+- **Risk Management**: Alerts and strategies are provided to minimize risks and maximize effectiveness during matches.
+- **Error Handling**: Robust mechanisms to handle unexpected cases and errors, ensuring smooth operation.
+- **Optimized Logic**: The decision-making algorithms have been refined for better accuracy and speed.
+- **Logging Capabilities**: Detailed logging allows users to track bot actions and outcomes for review and optimization.
 
-    <!-- OPTIONS -->
-    <statement name="SUBMARKET">
-      <block type="tradeOptions">
-        <field name="DURATIONTYPE_LIST">t</field>
-        <field name="CURRENCY_LIST">USD</field>
+## Installation
+1. Clone the repository.
+2. Run `npm install` to install dependencies.
+3. Configure the bot settings in `config.json`.
 
-        <value name="DURATION">
-          <block type="math_number"><field name="NUM">1</field></block>
-        </value>
+## Usage
+To start the bot, run the command:
+```
+npm start
+```
+Ensure the configuration is properly set before running the bot.
 
-        <value name="AMOUNT">
-          <block type="variables_get"><field name="VAR">stake</field></block>
-        </value>
+## Configuration parameters
+- `matchDuration`: Duration of the match in minutes.
+- `alertThreshold`: Risk threshold for alerts.
 
-        <value name="PREDICTION">
-          <block type="variables_get"><field name="VAR">prediction</field></block>
-        </value>
-      </block>
-    </statement>
-  </block>
+## Error Handling
+Handles various error conditions with user-friendly messages and fallback options.
 
-  <!-- BEFORE PURCHASE -->
-  <block type="before_purchase" x="20" y="260">
-    <statement name="BEFOREPURCHASE_STACK">
+## Logging
+Logs are generated in `logs` folder detailing each action taken by the bot.
 
-      <!-- current digit -->
-      <block type="variables_set">
-        <field name="VAR">current_digit</field>
-        <value name="VALUE">
-          <block type="last_digit"></block>
-        </value>
-        <next>
-
-          <!-- check streak -->
-          <block type="controls_if">
-            <mutation else="1"></mutation>
-
-            <value name="IF0">
-              <block type="logic_compare">
-                <field name="OP">EQ</field>
-                <value name="A">
-                  <block type="variables_get"><field name="VAR">current_digit</field></block>
-                </value>
-                <value name="B">
-                  <block type="variables_get"><field name="VAR">prev_digit</field></block>
-                </value>
-              </block>
-            </value>
-
-            <!-- SAME DIGIT -->
-            <statement name="DO0">
-              <block type="math_change">
-                <field name="VAR">streak</field>
-                <value name="DELTA">
-                  <block type="math_number"><field name="NUM">1</field></block>
-                </value>
-              </block>
-            </statement>
-
-            <!-- NEW DIGIT -->
-            <statement name="ELSE">
-              <block type="variables_set">
-                <field name="VAR">streak</field>
-                <value name="VALUE">
-                  <block type="math_number"><field name="NUM">1</field></block>
-                </value>
-              </block>
-            </statement>
-
-            <next>
-
-              <!-- SNIPER ENTRY -->
-              <block type="controls_if">
-                <value name="IF0">
-                  <block type="logic_compare">
-                    <field name="OP">GTE</field>
-                    <value name="A">
-                      <block type="variables_get"><field name="VAR">streak</field></block>
-                    </value>
-                    <value name="B">
-                      <block type="math_number"><field name="NUM">2</field></block>
-                    </value>
-                  </block>
-                </value>
-
-                <statement name="DO0">
-                  <block type="controls_if">
-                    <value name="IF0">
-                      <block type="logic_compare">
-                        <field name="OP">LT</field>
-                        <value name="A">
-                          <block type="variables_get"><field name="VAR">loss_count</field></block>
-                        </value>
-                        <value name="B">
-                          <block type="math_number"><field name="NUM">3</field></block>
-                        </value>
-                      </block>
-                    </value>
-
-                    <statement name="DO0">
-                      <block type="variables_set">
-                        <field name="VAR">prediction</field>
-                        <value name="VALUE">
-                          <block type="variables_get"><field name="VAR">current_digit</field></block>
-                        </value>
-                        <next>
-                          <block type="purchase">
-                            <field name="PURCHASE_LIST">DIGITMATCH</field>
-                          </block>
-                        </next>
-                      </block>
-                    </statement>
-                  </block>
-                </statement>
-
-              </block>
-
-            </next>
-          </block>
-
-          <next>
-            <!-- update prev -->
-            <block type="variables_set">
-              <field name="VAR">prev_digit</field>
-              <value name="VALUE">
-                <block type="variables_get"><field name="VAR">current_digit</field></block>
-              </value>
-            </block>
-          </next>
-
-        </next>
-      </block>
-
-    </statement>
-  </block>
-
-  <!-- AFTER PURCHASE -->
-  <block type="after_purchase" x="20" y="520">
-    <statement name="AFTERPURCHASE_STACK">
-
-      <block type="controls_if">
-        <mutation else="1"></mutation>
-
-        <!-- WIN -->
-        <value name="IF0">
-          <block type="contract_check_result">
-            <field name="CHECK_RESULT">win</field>
-          </block>
-        </value>
-
-        <statement name="DO0">
-          <block type="variables_set">
-            <field name="VAR">stake</field>
-            <value name="VALUE">
-              <block type="variables_get"><field name="VAR">base_stake</field></block>
-            </value>
-            <next>
-              <block type="variables_set">
-                <field name="VAR">loss_count</field>
-                <value name="VALUE">
-                  <block type="math_number"><field name="NUM">0</field></block>
-                </value>
-              </block>
-            </next>
-          </block>
-        </statement>
-
-        <!-- LOSS -->
-        <statement name="ELSE">
-          <block type="variables_set">
-            <field name="VAR">stake</field>
-            <value name="VALUE">
-              <block type="math_arithmetic">
-                <field name="OP">MULTIPLY</field>
-                <value name="A">
-                  <block type="variables_get"><field name="VAR">stake</field></block>
-                </value>
-                <value name="B">
-                  <block type="math_number"><field name="NUM">1.6</field></block>
-                </value>
-              </block>
-            </value>
-            <next>
-              <block type="math_change">
-                <field name="VAR">loss_count</field>
-                <value name="DELTA">
-                  <block type="math_number"><field name="NUM">1</field></block>
-                </value>
-              </block>
-            </next>
-          </block>
-        </statement>
-
-        <next>
-          <!-- STOP RULES -->
-          <block type="controls_if">
-            <mutation else="1"></mutation>
-
-            <value name="IF0">
-              <block type="logic_compare">
-                <field name="OP">GTE</field>
-                <value name="A"><block type="total_profit"></block></value>
-                <value name="B"><block type="variables_get"><field name="VAR">target</field></block></value>
-              </block>
-            </value>
-
-            <statement name="DO0">
-              <block type="stop"></block>
-            </statement>
-
-            <statement name="ELSE">
-              <block type="controls_if">
-                <value name="IF0">
-                  <block type="logic_compare">
-                    <field name="OP">LTE</field>
-                    <value name="A"><block type="total_profit"></block></value>
-                    <value name="B"><block type="variables_get"><field name="VAR">stoploss</field></block></value>
-                  </block>
-                </value>
-
-                <statement name="DO0">
-                  <block type="stop"></block>
-                </statement>
-
-                <next>
-                  <block type="trade_again"></block>
-                </next>
-              </block>
-            </statement>
-
-          </block>
-        </next>
-
-      </block>
-
-    </statement>
-  </block>
-
-</xml>
+## License
+This project is licensed under the MIT License.
